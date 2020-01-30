@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import fire
 import os
 import shutil
