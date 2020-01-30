@@ -40,7 +40,7 @@ class Boiler:
 
         # Step 1 - create a temporary directory
         cprint("\n\rCreate temporary directory", 'magenta')
-        dir_name = self.__create_temporary_directory()
+        dir_name = self.__create_temporary_directory("boiler_%s" % project_name)
         if dir_name is None:
             cprint("Cannot create temporary directory for deployment. Do you have sufficient permissions?", 'red')
             return
@@ -136,10 +136,6 @@ class Boiler:
             return None
         else:
             return dir_name
-
-    def __get_directory_name(self):
-        """Get a random name for a temp directory"""
-        return 'deploy'
 
 
 if __name__ == '__main__':
