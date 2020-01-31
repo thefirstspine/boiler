@@ -25,9 +25,12 @@ class Boiler:
         """Similar to deploy"""
         self.deploy(repository, project_name)
 
-    def deploy(self, repository, project_name="app"):
+    def deploy(self, repository, project_name=None):
         """Deploy an app using docker-compose & nginx"""
         cprint("\n\rBoiling %s" % repository, 'magenta')
+
+        # Get the right project name
+        project_name = project_name if project_name is not None else self.__get_project_name(repository)
 
         # Step 0 - requirements
         cprint("\n\rCheck requirements", 'magenta')
@@ -136,6 +139,13 @@ class Boiler:
             return None
         else:
             return dir_name
+
+    def __get_project_name(self, repository):
+        git_name_arr = repository.split(':')
+        git_name = git_name_arr[1]
+        git_name_last_fragment_arr = git_name.split('/')
+        git_name_last_fragment = git_name_last_fragment_arr[len(git_name_last_fragment_arr) - 1]
+        return git_name_last_fragment.replace('.git', '')
 
 
 if __name__ == '__main__':
