@@ -16,13 +16,14 @@ cprint("╚═════╝      ╚═════╝     ╚═╝    ╚═
 class Boiler:
     def requirements(self):
         """Indicates of the server can boil an app"""
+
         return True
 
-    def boil(self, repository, project_name=None, skip_build=False):
+    def boil(self, repository, project_name=None, skip_clean=0, skip_build=0):
         """Similar to deploy"""
         self.deploy(repository, project_name)
 
-    def deploy(self, repository, project_name=None, skip_build=False):
+    def deploy(self, repository, project_name=None, skip_clean=0, skip_build=0):
         """Deploy an app using docker-compose & nginx"""
         cprint("\n\rBoiling %s" % repository, 'magenta')
 
@@ -84,28 +85,31 @@ class Boiler:
         cprint('Dotenv config copied! Ready to build.', 'green')
 
         # Can skip here
-        if skip_build is True:
+        if skip_build == 1:
             cprint('Skip build -- all done!', 'cyan')
             return
 
         # Step 6 - build docker image
         cprint("\n\rBuild docker image", 'magenta')
         os.chdir(dir_name)
-        os.system("docker-compose build")
+        if os.system("docker-compose build") > 0:
+            cprint('Cannot build', 'red')
         cprint('Docker image built.', 'green')
 
-        # Step 6 - stop old container
+        # Step 7 - stop old container
         cprint("\n\rStop old containers", 'magenta')
-        os.system("docker-compose down")
+        if os.system("docker-compose down") > 0:
+            cprint('Cannot stop', 'red')
         cprint('Containers stopped.', 'green')
 
-        # Step 7 - up new containers
+        # Step 8 - up new containers
         cprint("\n\rRaising new containers", 'magenta')
-        os.system("docker-compose up -d")
+        if os.system("docker-compose up -d") > 0:
+            cprint('Cannot raise', 'red')
         os.chdir("../")
         cprint('Containers up & running!', 'green')
 
-        # Step 8 - nginx config & restart
+        # Step 9 - nginx config & restart
         if os.path.exists("%s/%s/.boiler/nginx" % (dir_name, project_name)) and False:
             try:
                 cprint("\n\rCopy nginx config", 'magenta')
@@ -120,7 +124,12 @@ class Boiler:
                 return None
             cprint('Config copied!', 'green')
 
-        # Step 9 - Clean app
+        # Can skip here
+        if skip_clean == 1:
+            cprint('Skip clean -- all done!', 'cyan')
+            return
+
+        # Step 10 - Clean app
         cprint("\n\rCleaning", 'magenta')
         try:
             shutil.rmtree("%s" % dir_name, ignore_errors=True)
