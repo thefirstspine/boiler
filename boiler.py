@@ -18,11 +18,11 @@ class Boiler:
         """Indicates of the server can boil an app"""
         return True
 
-    def boil(self, repository, project_name=None):
+    def boil(self, repository, project_name=None, skip_build=False):
         """Similar to deploy"""
         self.deploy(repository, project_name)
 
-    def deploy(self, repository, project_name=None):
+    def deploy(self, repository, project_name=None, skip_build=False):
         """Deploy an app using docker-compose & nginx"""
         cprint("\n\rBoiling %s" % repository, 'magenta')
 
@@ -83,6 +83,11 @@ class Boiler:
             return None
         cprint('Dotenv config copied! Ready to build.', 'green')
 
+        # Can skip here
+        if skip_build is True:
+            cprint('Skip build -- all done!', 'cyan')
+            return
+
         # Step 6 - build docker image
         cprint("\n\rBuild docker image", 'magenta')
         os.chdir(dir_name)
@@ -122,7 +127,7 @@ class Boiler:
         except OSError:
             cprint("Cannot rm %s" % dir_name, 'red')
             return
-        cprint('App boiled! Can be served =)', 'green')
+        cprint('App boiled! Can be served =)', 'cyan')
 
     def __create_temporary_directory(self, dir_name=None):
         """Create a temporary directory & return the name"""
