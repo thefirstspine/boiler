@@ -3,11 +3,8 @@
 import fire
 import os
 import shutil
-from datetime import datetime
-from termcolor import colored, cprint
+from termcolor import cprint
 
-os.system('clear')
-os.system('cls')
 print("██████╗      ██████╗     ██╗    ██╗         ███████╗    ██████╗ ")
 print("██╔══██╗    ██╔═══██╗    ██║    ██║         ██╔════╝    ██╔══██╗")
 print("██████╔╝    ██║   ██║    ██║    ██║         █████╗      ██████╔╝")
