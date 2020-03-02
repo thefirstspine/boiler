@@ -13,13 +13,19 @@ You need a server with `git`, `python-pip`, `docker`, `docker-compose` & `nginx`
 Deploy a project
 
 ```bash
-python boiler.py [repository-url]
+python boiler.py [boil|deploy] [repository-url] [options]
 ```
+
+Here's the options available:
+- `project_name`: The project name. Default to the repository's name.
+- `tag_or_branch`: The tag or the branch to deploy. Default to `master`.
+- `skip_clean`: Skip the clean at the end of the deployment. `1` or `0`. Defaults to `0`.
+- `skip_build`: Skip the docker build. `1` or `0`. Defaults to `0`.s
 
 Example with Arena
 
 ```bash
-python boiler.py git@github.com:thefirstspine/arena.git
+python boiler.py git@github.com:thefirstspine/arena.git --tag_or_branch=1.0.0
 ```
 
 ## About `.boiler` directory in projects
