@@ -23,7 +23,7 @@ class Boiler:
         """Similar to deploy"""
         self.deploy(repository, project_name)
 
-    def deploy(self, repository, project_name=None, skip_clean=0, skip_build=0):
+    def deploy(self, repository, project_name=None, tag_or_branch="master", skip_clean=0, skip_build=0):
         """Deploy an app using docker-compose & nginx"""
         cprint("\n\rBoiling %s" % repository, 'magenta')
 
@@ -49,8 +49,8 @@ class Boiler:
 
         # Step 2 - clone the app
         cprint("\n\rClone app", 'magenta')
-        os.system("git clone -b master --single-branch --recurse-submodules %s %s/%s" %
-                  (repository, dir_name, project_name))
+        os.system("git clone -b %s --single-branch --recurse-submodules %s %s/%s" %
+                  (tag_or_branch, repository, dir_name, project_name))
         cprint("App cloned", 'green')
 
         # Step 3 - remove .git
