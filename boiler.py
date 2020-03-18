@@ -110,7 +110,7 @@ class Boiler:
         cprint('Containers up & running!', 'green')
 
         # Step 9 - nginx config & restart
-        if os.path.exists("%s/%s/.boiler/nginx" % (dir_name, project_name)) and False:
+        if os.path.exists("%s/%s/.boiler/nginx" % (dir_name, project_name)):
             try:
                 cprint("\n\rCopy nginx config", 'magenta')
                 shutil.copy("%s/%s/.boiler/nginx" % (dir_name, project_name),
