@@ -117,7 +117,7 @@ class Boiler:
                             "/etc/nginx/sites-available/%s" % project_name)
                 shutil.copy("%s/%s/.boiler/nginx" % (dir_name, project_name),
                             "/etc/nginx/sites-enabled/%s" % project_name)
-                cprint("execute `service nginx restart`" % dir_name)
+                cprint("execute `service nginx restart`")
                 os.system("service nginx restart")
             except OSError:
                 cprint("Cannot copy nginx config", 'red')
