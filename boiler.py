@@ -19,9 +19,9 @@ class Boiler:
 
         return True
 
-    def boil(self, repository, project_name=None, skip_clean=0, skip_build=0):
+    def boil(self, repository, project_name=None, tag_or_branch="master", skip_clean=0, skip_build=0):
         """Similar to deploy"""
-        self.deploy(repository, project_name)
+        self.deploy(repository, project_name, tag_or_branch, skip_clean, skip_build)
 
     def deploy(self, repository, project_name=None, tag_or_branch="master", skip_clean=0, skip_build=0):
         """Deploy an app using docker-compose & nginx"""
