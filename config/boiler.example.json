@@ -1,0 +1,5 @@
+{
+  "githubWebhook": {
+    "secret": "supersecret"
+  }
+}
