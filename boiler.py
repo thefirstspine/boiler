@@ -1,7 +1,12 @@
 # coding=utf-8
 
 import fire
+import hashlib
+import hmac
+import http.server
+import json
 import os
+import socketserver
 import shutil
 from termcolor import cprint
 
@@ -12,12 +17,21 @@ cprint("██╔══██╗    ██║   ██║    ██║    ██
 cprint("██████╔╝    ╚██████╔╝    ██║    ███████╗    ███████╗    ██║  ██║", 'cyan')
 cprint("╚═════╝      ╚═════╝     ╚═╝    ╚══════╝    ╚══════╝    ╚═╝  ╚═╝", 'cyan')
 
+# Get the config from boiler.json
+config_raw = open('config/boiler.json', 'r').read()
+config_json = json.loads(config_raw)
+
 
 class Boiler:
     def requirements(self):
         """Indicates of the server can boil an app"""
-
         return True
+
+    def serve(self, port=6100):
+        """Serve boiler to listen for web-hooks like Github to release"""
+        with socketserver.TCPServer(("", port), GithubWebhookHttpRequestHandler) as httpd:
+            cprint("\n\rServing Boiler web hook server at port %s" % port, 'magenta')
+            httpd.serve_forever()
 
     def boil(self, repository, project_name=None, tag_or_branch="master", skip_clean=0, skip_build=0):
         """Similar to deploy"""
@@ -140,7 +154,6 @@ class Boiler:
 
     def __create_temporary_directory(self, dir_name=None):
         """Create a temporary directory & return the name"""
-        dir_name = self.__get_directory_name() if dir_name is None else dir_name
         if os.path.isdir(dir_name):
             shutil.rmtree("%s" % dir_name)
         try:
@@ -157,6 +170,55 @@ class Boiler:
         git_name_last_fragment_arr = git_name.split('/')
         git_name_last_fragment = git_name_last_fragment_arr[len(git_name_last_fragment_arr) - 1]
         return git_name_last_fragment.replace('.git', '')
+
+
+class GithubWebhookHttpRequestHandler(http.server.BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        """Handler for GET methods"""
+        self.send_response(400)
+        self.end_headers()
+        self.wfile.write(b"")
+
+    def do_POST(self):
+        """Handler for POST methods"""
+        # Get the body of the request
+        content_len = int(self.headers.get('Content-Length'))
+        post_body = self.rfile.read(content_len)
+        # Validate the signature
+        if not self.__validate_signature(post_body, config_json['githubWebhook']['secret']):
+            return self.__exit403()
+        # Get JSON body
+        json_body = json.loads(post_body)
+        # Guard on not action "released"
+        if not json_body['action'] == 'released':
+            return self.__exit400()
+        # Return 200
+        self.send_response(200)
+        self.end_headers()
+        # Call boiler
+        self_boiler = Boiler()
+        self_boiler.deploy(repository=json_body['repository']['ssh_url'], tag_or_branch=json_body['release']['tag_name'])
+
+
+    def __validate_signature(self, body, secret):
+        if self.headers['X-Hub-Signature'] is None:
+            return False
+        signature_parts = self.headers['X-Hub-Signature'].split("=", 1)
+        digest = hmac.new(bytes(secret, 'utf-8'), body, hashlib.sha1).hexdigest()
+        if len(signature_parts) < 2 or \
+                signature_parts[0] != "sha1" or \
+                not hmac.compare_digest(signature_parts[1], digest):
+            return False
+        return True
+
+    def __exit400(self):
+        self.send_response(400)
+        self.end_headers()
+
+    def __exit403(self):
+        self.send_response(403)
+        self.end_headers()
 
 
 if __name__ == '__main__':
