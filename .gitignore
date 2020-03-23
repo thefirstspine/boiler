@@ -1,0 +1,5 @@
+config/*
+!config/boiler.example.json
+!config/.gitkeep
+.idea
+venv
